@@ -9,8 +9,10 @@ CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
 CONFIG_ESP_MAIN_TASK_STACK_SIZE=8192
 CONFIG_CHIP_TASK_STACK_SIZE=8192
 
-# Thread (Matter manages OT, but we enable the underlying support)
+# Thread — MTD (Minimal Thread Device) required for ICD sleep support.
+# An MTD stays as a sleepy end device; it does not promote to router.
 CONFIG_OPENTHREAD_ENABLED=y
+CONFIG_OPENTHREAD_MTD=y
 CONFIG_IEEE802154_ENABLED=y
 CONFIG_OPENTHREAD_SRP_CLIENT=y
 CONFIG_OPENTHREAD_DNS_CLIENT=y
@@ -31,24 +33,28 @@ CONFIG_BT_ENABLED=n
 CONFIG_CHIP_PROJECT_CONFIG="main/CHIPProjectConfig.h"
 CONFIG_ENABLE_EXTENDED_DISCOVERY=y
 # Use platform DNS-SD (SRP via border router) instead of minimal mDNS.
-# With USE_MINIMAL_MDNS=y the device broadcasts mDNS directly on the Thread
-# interface; HA on Ethernet never sees it. With USE_MINIMAL_MDNS=n, the SRP
-# client registers with the border router, which proxies the service to HA.
 CONFIG_USE_MINIMAL_MDNS=n
 
 # LWIP for Thread/Matter
 CONFIG_LWIP_IPV6_NUM_ADDRESSES=8
 CONFIG_LWIP_MULTICAST_PING=y
 CONFIG_LWIP_IPV6_AUTOCONFIG=y
-# Route hooks needed for ENABLE_ROUTE_HOOK (RIO support) and proper IPv6 gw
 CONFIG_LWIP_HOOK_IP6_ROUTE_DEFAULT=y
 CONFIG_LWIP_HOOK_ND6_GET_GW_DEFAULT=y
 
 # mbedTLS (Matter needs HKDF)
 CONFIG_MBEDTLS_HKDF_C=y
 
+# ICD (Intermittently Connected Device) — tells the commissioner this device
+# intentionally deep-sleeps and should not be marked "unavailable".
+# LIT = Long Idle Time (idle > 15 s).
+CONFIG_ENABLE_ICD_SERVER=y
+CONFIG_ENABLE_ICD_LIT=y
+CONFIG_ICD_IDLE_MODE_INTERVAL_SEC=2400
+CONFIG_ICD_ACTIVE_MODE_INTERVAL_MS=10000
+CONFIG_ICD_ACTIVE_MODE_THRESHOLD_MS=5000
+CONFIG_ICD_FAST_POLL_INTERVAL_MS=500
+CONFIG_ICD_SLOW_POLL_INTERVAL_MS=20000
+
 # NVS
 CONFIG_NVS_FLASH=y
-
-# Fake sensor for debug boards without DS18B20
-CONFIG_USE_FAKE_TEMP_SENSOR=n
